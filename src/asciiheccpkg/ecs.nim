@@ -10,7 +10,7 @@ import util/[slotmap, uuid]
 type
   Entity* = Key
 
-  Component* = object of RootObj
+  Component* = ref object of RootObj
 
   System* = ref object of RootObj
     world*: World
@@ -21,7 +21,7 @@ type
 
 proc getComponent*(self: World; entity: Entity, filter: typedesc[Component]): Component =
   for component in self.entities[entity]:
-    if component is filter:
+    if component of filter:
       return component
 
 proc getComponents*(self: World; entity: Entity, filter: openarray[typedesc[Component]]): seq[Component] =
@@ -33,6 +33,9 @@ proc hash(x: System): Hash =
   result = result !& hash(unsafeAddr x)
   result = !$result
 
+method init*(self: System) {.base.} =
+  raise newException(Exception, "overide init")
+
 method update*(self: System; dt: float) {.base.} =
   raise newException(Exception, "overide update")
 
@@ -41,18 +44,19 @@ proc newWorld*(): World =
   result.entities = newSlotMap[seq[Component]]()
   result.systems = initSet[System]()
 
-proc newEntity*(self: var World): Entity =
+proc newEntity*(self: World): Entity =
   self.entities.insert(@[])
 
-proc addComponent*(self: var World; entity: Entity; component: Component) =
+proc addComponent*(self: World; entity: Entity; component: Component) =
   var components = self.entities[entity]
   components.add(component)
 
-proc addSystem*(self: var World; system: typedesc[System]) =
+proc addSystem*(self: World; system: typedesc[System]) =
   let instance = new system
   instance.world = self
+  instance.init()
   self.systems.incl(instance)
 
-proc update*(self: var World; dt: float) =
+proc update*(self: World; dt: float) =
   for system in self.systems:
     system.update(dt)
