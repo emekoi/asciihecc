@@ -4,7 +4,8 @@
 ##  under the terms of the MIT license. See LICENSE for details.
 ##
 
-switch("nimcache", "nimcache")
+switch("nimcache", "bin/nimcache")
+switch("threads", "on")
 
 when defined(release):
   # when defined(windows):

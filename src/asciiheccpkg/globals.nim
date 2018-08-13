@@ -5,5 +5,6 @@
 ##
 
 const
+  TITLE* = "asciihecc"
   WIDTH* = 512
   HEIGHT* = 512

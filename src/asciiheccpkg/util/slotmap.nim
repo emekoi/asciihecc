@@ -73,6 +73,30 @@ proc insertWithKey*[T](self: var SlotMap[T]; f: (Key) -> T): Key =
     self.freeHead = uint(self.slots.len)
     self.len = newLen
 
+proc default*(T: typedesc): T = discard
+
+proc reserve*[T](self: var SlotMap[T]): Key =
+  let newLen = self.len + 1
+  if newLen == high(uint32):
+    raise newException(OverflowError, "SlotMap overflow")
+
+  let idx = self.freeHead
+
+  try:
+    let
+      slot = addr self.slots[int(idx)]
+      occupiedVersion = slot.version or 1
+    result = (uint32(idx), occupiedVersion)
+    slot.version = occupiedVersion
+    self.freeHead = uint(slot.nextFree)
+    self.len = newLen
+  except:
+    result = (uint32(idx), 1'u32)
+    self.slots.add (1'u32, 0'u32, default(T))
+
+    self.freeHead = uint(self.slots.len)
+    self.len = newLen
+
 proc removeFromSlot[T](self: var SlotMap[T]; idx: Natural): T =
   let slot = addr self.slots[idx]
   slot.nextFree = uint32(self.freeHead)
@@ -84,6 +108,12 @@ proc removeFromSlot[T](self: var SlotMap[T]; idx: Natural): T =
 proc remove*[T](self: var SlotMap[T]; key: Key): T =
   if self.hasKey(key):
     self.removeFromSlot(key.idx)
+  else:
+    raise newException(KeyError, "invalid SlotMap key")
+
+proc delete*[T](self: var SlotMap[T]; key: Key) =
+  if self.hasKey(key):
+    discard self.removeFromSlot(key.idx)
   else:
     raise newException(KeyError, "invalid SlotMap key")
 
@@ -118,7 +148,7 @@ iterator pairs*[T](self: SlotMap[T]): (Key, T) =
   for idx, slot in self.slots:
     if slot.occupied:
       yield (
-        (idx, slot.version),
+        (uint32(idx), slot.version),
         slot.value
       )
 
@@ -126,14 +156,14 @@ iterator mpairs*[T](self: var SlotMap[T]): (Key, var T) =
   for idx, slot in self.slots.mpairs:
     if slot.occupied:
       yield (
-        (idx, slot.version),
+        (uint32(idx), slot.version),
         slot.value
       )
 
 iterator keys*[T](self: SlotMap[T]): Key =
   for idx, slot in self.slots:
     if slot.occupied:
-      yield (idx, slot.version)
+      yield (uint32(idx), slot.version)
 
 iterator values*[T](self: SlotMap[T]): T =
   for slot in self.slots:

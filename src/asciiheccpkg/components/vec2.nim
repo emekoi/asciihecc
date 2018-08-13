@@ -5,7 +5,7 @@
 ##
 
 import math
-import ecs
+import ../ecs
 
 type Vec2* = ref object of Component
   x*, y*: float

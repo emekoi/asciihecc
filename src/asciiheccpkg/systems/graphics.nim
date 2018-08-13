@@ -4,10 +4,14 @@
 ##  under the terms of the MIT license. See LICENSE for details.
 ##
 
+import macros
 import syrup/graphics
-import ecs, globals
+import ../ecs, ../globals
+import ../components/[vec2, sprite]
 
-type GraphicsSystem = ref object of System
+export graphics
+
+type GraphicsSystem* = ref object of System
   framebuffer: Texture
 
 method init*(self: GraphicsSystem) =
@@ -15,5 +19,10 @@ method init*(self: GraphicsSystem) =
 
 method update*(self: GraphicsSystem; dt: float) =
   self.framebuffer.clear()
-  self.framebuffer.drawCircle(color(1.0, 1.0, 1.0), 0, 0)
-  graphics.drawTexture(self.framebuffer, 0, 0)
+  for e in self.world.entities.keys:
+    if self.world.hasComponents(e, Vec2, Sprite):
+      let
+        position = self.world.getComponent(e, Vec2)
+        image = self.world.getComponent(e, Sprite)
+      self.framebuffer.drawTexture(image.texture, int(position.x), int(position.y))
+  graphics.drawTexture(self.framebuffer, WIDTH div 2, HEIGHT div 2)

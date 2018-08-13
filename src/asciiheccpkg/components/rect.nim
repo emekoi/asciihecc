@@ -5,7 +5,7 @@
 ##
 
 import math
-import ecs
+import../ecs
 import vec2
 
 type Rect* = ref object of Component
