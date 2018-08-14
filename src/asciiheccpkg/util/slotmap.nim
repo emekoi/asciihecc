@@ -6,6 +6,12 @@
 
 import sugar
 
+proc default*(T: typedesc): T = discard
+
+proc clone*[T](value: ref T): ref T =
+  new result
+  result[] = value[]
+
 type Key* = tuple
   idx: uint32
   version: uint32
@@ -71,8 +77,6 @@ proc insertWithKey*[T](self: var SlotMap[T]; f: (Key) -> T): Key =
     self.slots.add (1'u32, 0'u32, f(result))
     self.freeHead = uint(self.slots.len)
     self.len = newLen
-
-proc default*(T: typedesc): T = discard
 
 proc reserve*[T](self: var SlotMap[T]): Key =
   let newLen = self.len + 1

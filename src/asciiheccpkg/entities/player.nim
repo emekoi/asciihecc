@@ -5,10 +5,18 @@
 ##
 
 import ../ecs, ../globals, syrup/font
-import ../components/[vec2, sprite, controller]
+import ../components/[vec2, sprite, controller, rigidbody]
 
 proc newPlayer*(self: World; pos: Vec2): Entity =
   let
     image = sprite.newSprite("@")
-    controls = Controller(keymap: CONTROLLER_KEYMAP)
-  self.addEntity([pos, image, controls])
+    controls = Controller(
+      keymap: CONTROLLER_KEYMAP
+    )
+    clone = pos.clone()
+    body = RigidBody(
+      current: pos,
+      previous: clone,
+      acceleration: 0.5
+    )
+  self.addEntity([pos, image, controls, body])

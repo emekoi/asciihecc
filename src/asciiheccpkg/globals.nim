@@ -13,5 +13,9 @@ const
 
 let
   CONTROLLER_KEYMAP* = {
-    "quit": @["escape"]
+    "quit": @["escape"],
+    "left": @["w", "left"],
+    "right": @["d", "right"],
+    "up": @["w", "up"],
+    "down": @["s", "down"]
   }.newTable()
