@@ -12,7 +12,7 @@ let ALPHABET = font.newFontDefault(32)
 type Sprite* = ref object of Component
   texture*: Texture
 
-proc newSprite*(self: World; txt: string): Sprite =
+proc newSprite*(txt: string): Sprite =
   Sprite(
     texture: ALPHABET.render(txt)
   )

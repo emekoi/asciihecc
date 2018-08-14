@@ -13,6 +13,8 @@ when not defined(release):
   import util/logger
   export logger
 
+  logger.addLogger(stdout)
+
 type
   Entity* = Key
 
@@ -27,11 +29,12 @@ type
     entities*: SlotMap[seq[Key]]
     systems*: HashSet[System]
 
-proc addEntity*(self: World): Entity =
+proc addEntity*(self: World): Entity {.inline.} =
   self.entities.reserve()
 
 proc addEntity*(self: World; components: openarray[Component]): Entity =
-  result = self.entities.reserve()
+  result = self.addEntity()
+  self.entities[result] = newSeqOfCap[Key](components.len)
   for component in components:
     let key = self.components.insert(component)
     self.entities[result].add(key)
@@ -102,7 +105,7 @@ proc hash*(x: System): Hash =
   result = !$result
 
 method init*(self: System) {.base.} =
-  raise newException(Exception, "overide init")
+  discard
 
 method update*(self: System; dt: float) {.base.} =
   raise newException(Exception, "overide update")
@@ -116,12 +119,10 @@ proc addSystem*(self: World; system: typedesc[System]) =
 
 proc newWorld*(): World =
   new result
-  result.components = newSlotMap[Component]()
-  result.entities = newSlotMap[seq[Key]]()
+  result.components = newSlotMap[Component](1024)
+  result.entities = newSlotMap[seq[Key]](1024)
   result.systems = initSet[System]()
 
 proc update*(self: World; dt: float) =
   for system in self.systems:
     system.update(dt)
-
-logger.addLogger(stdout)

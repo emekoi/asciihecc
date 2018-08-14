@@ -4,7 +4,14 @@
 ##  under the terms of the MIT license. See LICENSE for details.
 ##
 
+import tables
+
 const
   TITLE* = "asciihecc"
   WIDTH* = 512
   HEIGHT* = 512
+
+let
+  CONTROLLER_KEYMAP* = {
+    "quit": @["escape"]
+  }.newTable()

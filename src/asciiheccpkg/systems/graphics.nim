@@ -4,7 +4,6 @@
 ##  under the terms of the MIT license. See LICENSE for details.
 ##
 
-import macros
 import syrup/graphics
 import ../ecs, ../globals
 import ../components/[vec2, sprite]
@@ -20,6 +19,7 @@ method init*(self: GraphicsSystem) =
 method update*(self: GraphicsSystem; dt: float) =
   self.framebuffer.clear()
   for e in self.world.entities.keys:
+    # echo e
     if self.world.hasComponents(e, Vec2, Sprite):
       let
         position = self.world.getComponent(e, Vec2)

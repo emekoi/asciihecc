@@ -12,6 +12,6 @@ when defined(release):
   #   switch("link", "nimcache/*.res")
   # switch("define", "useRealtimeGC")
   # switch("passC", "-flto")
-  switch("app", "gui")
+  # switch("app", "gui")
   switch("dynlibOverride", "SDL_gpu")
   switch("passC", "-lSDL_gpu.a")

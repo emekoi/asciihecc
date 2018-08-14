@@ -41,10 +41,10 @@ proc reserve*(self: var SlotMap; additional: Natural) =
   self.slots.setLen(needed)
 
 proc hasKey*(self: SlotMap; key: Key): bool =
-  try:
+  if key.idx < uint32(self.slots.len):
     let slot = self.slots[int(key.idx)]
     return slot.version == key.version
-  except:
+  else:
     return false
 
 proc insert*[T](self: var SlotMap[T]; value: T): Key =
@@ -56,8 +56,8 @@ proc insertWithKey*[T](self: var SlotMap[T]; f: (Key) -> T): Key =
     raise newException(OverflowError, "SlotMap overflow")
 
   let idx = self.freeHead
-
-  try:
+  
+  if idx < uint32(self.slots.len):
     let
       slot = addr self.slots[int(idx)]
       occupiedVersion = slot.version or 1
@@ -66,10 +66,9 @@ proc insertWithKey*[T](self: var SlotMap[T]; f: (Key) -> T): Key =
     slot.version = occupiedVersion
     self.freeHead = uint(slot.nextFree)
     self.len = newLen
-  except:
+  else:
     result = (uint32(idx), 1'u32)
     self.slots.add (1'u32, 0'u32, f(result))
-
     self.freeHead = uint(self.slots.len)
     self.len = newLen
 
@@ -81,19 +80,19 @@ proc reserve*[T](self: var SlotMap[T]): Key =
     raise newException(OverflowError, "SlotMap overflow")
 
   let idx = self.freeHead
-
-  try:
+  
+  if idx < uint32(self.slots.len):
     let
       slot = addr self.slots[int(idx)]
       occupiedVersion = slot.version or 1
     result = (uint32(idx), occupiedVersion)
+    slot.value = default(T)
     slot.version = occupiedVersion
     self.freeHead = uint(slot.nextFree)
     self.len = newLen
-  except:
+  else:
     result = (uint32(idx), 1'u32)
     self.slots.add (1'u32, 0'u32, default(T))
-
     self.freeHead = uint(self.slots.len)
     self.len = newLen
 
@@ -134,15 +133,20 @@ proc clear*(self: var SlotMap) =
   self.freeHead = 0
   self.len = 0
 
-proc `[]`*[T](self: SlotMap[T], key: Key): T =
+proc `[]`*[T](self: SlotMap[T]; key: Key): T =
   if not self.hasKey(key):
     raise newException(KeyError, "invalid SlotMap key")
   self.slots[int(key.idx)].value
 
-proc `[]`*[T](self: var SlotMap[T], key: Key): var T =
+proc `[]`*[T](self: var SlotMap[T]; key: Key): var T =
   if not self.hasKey(key):
     raise newException(KeyError, "invalid SlotMap key")
   self.slots[int(key.idx)].value
+
+proc `[]=`*[T](self: var SlotMap[T]; key: Key; value: T) =
+  if not self.hasKey(key):
+    raise newException(KeyError, "invalid SlotMap key")
+  self.slots[int(key.idx)].value = value
 
 iterator pairs*[T](self: SlotMap[T]): (Key, T) =
   for idx, slot in self.slots:

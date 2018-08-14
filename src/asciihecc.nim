@@ -7,19 +7,24 @@
 import syrup, syrup/debug
 import asciiheccpkg/[globals, ecs]
 import asciiheccpkg/components/[vec2]
-import asciiheccpkg/systems/[graphics]
+import asciiheccpkg/systems/[graphics, input]
 import asciiheccpkg/entities/[player]
 
 syrup.setTitle(TITLE)
 syrup.setWidth(WIDTH)
 syrup.setHeight(HEIGHT)
 
+
+
 let WORLD = newWorld()
 WORLD.addSystem(GraphicsSystem)
-let pp = WORLD.newPlayer(Vec2(x: 256, y: 256))
+WORLD.addSystem(InputSystem)
+for i in 0 ..< 100:
+  # write stdout, $i & " "
+  discard WORLD.newPlayer(Vec2(x: 256, y: 256))
 
-when not defined(release):
-  debug.setVisible(true)
+# when not defined(release):
+debug.setVisible(true)
 
 proc update(dt: float) =
   WORLD.update(dt)
@@ -27,4 +32,7 @@ proc update(dt: float) =
 proc draw() =
   discard
 
-syrup.run(update, draw)
+proc main() =
+  syrup.run(update, draw)
+
+main()

@@ -4,9 +4,11 @@
 ##  under the terms of the MIT license. See LICENSE for details.
 ##
 
-import ../ecs, syrup/font
-import ../components/[vec2, sprite]
+import ../ecs, ../globals, syrup/font
+import ../components/[vec2, sprite, controller]
 
 proc newPlayer*(self: World; pos: Vec2): Entity =
-  let image = self.newSprite("@")
-  self.addEntity([pos, image])
+  let
+    image = sprite.newSprite("@")
+    controls = Controller(keymap: CONTROLLER_KEYMAP)
+  self.addEntity([pos, image, controls])
