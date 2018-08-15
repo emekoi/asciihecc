@@ -4,7 +4,7 @@
 ##  under the terms of the MIT license. See LICENSE for details.
 ##
 
-import ../ecs, ../globals, syrup/font
+import ../ecs, ../globals, syrup/[graphics, font]
 import ../components/[vec2, sprite, controller, rigidbody]
 
 proc newPlayer*(self: World; pos: Vec2): Entity =

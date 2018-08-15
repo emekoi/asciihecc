@@ -20,8 +20,8 @@ method update*(self: PhysicsSystem; dt: float) =
     if self.world.hasComponents(e, RigidBody):
       let
         body = self.world.getComponent(e, RigidBody)
-        d = (body.current - body.previous) * 1.999
+        d = (body.current - body.previous) #[+ body.acceleration * dt ^ 2]#
       body.previous = body.current.clone()
       body.current += d
       echo repr d
-      
+

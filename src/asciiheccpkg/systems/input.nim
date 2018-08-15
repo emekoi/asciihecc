@@ -4,23 +4,29 @@
 ##  under the terms of the MIT license. See LICENSE for details.
 ##
 
-import syrup
+import math
+import syrup, syrup/[mouse]
 import ../ecs, ../globals
-import ../components/[controller, vec2]
+import ../components/[controller, vec2, rigidbody, sprite]
 
 type InputSystem* = ref object of System
 
 method update*(self: InputSystem; dt: float) =
   for e in self.world.entities.keys:
-    if self.world.hasComponents(e, Controller, Vec2):
+    if self.world.hasComponents(e, Controller, Vec2, Sprite):
       let
         keyboard = self.world.getComponent(e, Controller)
-        position = self.world.getComponent(e, Vec2)
+        body = self.world.getComponent(e, RigidBody)
+        sprite = self.world.getComponent(e, Sprite)
+        (x, y) = mouse.mousePosition()
       
       if keyboard.wasPressed("quit"):
         syrup.exit()
       
-      if keyboard.isDown("right"):
-        position.x += 1.0
-        echo "kkk"
+      body.rotation = arctan2(float(y) - body.current.y, float(x) - body.current.x)
+      sprite.transform.r = body.rotation
+
+      # if keyboard.isDown("right"):
+      #   body.current.x += 1.0
+      #   echo "kkk"
 

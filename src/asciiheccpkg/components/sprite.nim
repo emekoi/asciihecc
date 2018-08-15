@@ -7,15 +7,14 @@
 import ../ecs, syrup/[graphics, font]
 import vec2
 
-let ALPHABET = font.newFontDefault(32)
+let ALPHABET = font.newFontDefault(64)
 
 type Sprite* = ref object of Component
   texture*: Texture
+  transform*: Transform
 
 proc newSprite*(txt: string): Sprite =
   Sprite(
-    texture: ALPHABET.render(txt)
+    texture: ALPHABET.render(txt),
+    transform: transform()
   )
-
-type Transform* = ref object of Component
-  transform*: Transform

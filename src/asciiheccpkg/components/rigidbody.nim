@@ -10,3 +10,4 @@ import vec2
 type RigidBody* = ref object of Component
   current*, previous*: Vec2
   acceleration*: float
+  rotation*: float

@@ -24,5 +24,5 @@ method update*(self: GraphicsSystem; dt: float) =
       let
         position = self.world.getComponent(e, Vec2)
         image = self.world.getComponent(e, Sprite)
-      self.framebuffer.drawTexture(image.texture, int(position.x), int(position.y))
+      self.framebuffer.drawTexture(image.texture, int(position.x), int(position.y), image.transform)
   graphics.drawTexture(self.framebuffer, WIDTH div 2, HEIGHT div 2)
